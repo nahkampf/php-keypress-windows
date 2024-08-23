@@ -7,7 +7,7 @@ This is a workaround hack for that problem, and only applies if you want to do C
 We rely on an EXE file called `keypress.exe` that does one simple thing: wait for keyboard input, and output a json blob of the key data once a key was pressed. This file can then be called using `shell_exec()` in php to give a completely transparent "keypress detector". The caveat here is of course that you need to have permissions to exec files in your environment.
 
 ### Due dilligence
-You should probably make a habit of not downloading and running random executables in your environment without some due dilligence, but a precompiled executable *is* included here (`keypress.zip` that contains `keypress.exe`) for ease of use. But don't trust me; instead look at the code here and build your own:
+You should probably make a habit of not downloading and running random executables in your environment without some due dilligence, but a precompiled executable *is* included here for ease of use. But don't trust me; instead look at the code here and build your own:
 
 ### How to build
 1. `node --experimental-sea-config sea-config.json`
@@ -31,12 +31,13 @@ If you were to press `ctrl+arrow-up` you should get an object back containing th
 ```
 stdClass Object
 (
+    [sequence] => \u001b[1;5A
     [name] => up
     [ctrl] => 1
     [meta] =>
     [shift] =>
-    [code] => [A>
+    [code] => [A
 )
 ```
 ## Credits
-This extremely simple tool is written in nodejs and utilizes the library [`keypress`](https://github.com/TooTallNate/keypress) by [Nathan Rajlich](https://github.com/TooTallNate). Thanks!
+This extremely simple tool is written in nodejs and is basically just ripping off a small script by [Dennis Hackethal](https://github.com/TooTallNate/keypress/issues/28). Thanks!
