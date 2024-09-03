@@ -1,4 +1,4 @@
-# Keypress Dumper (windows)
+# Keypress detection for PHP CLI (Windows compatible)
 Long and boring story short: PHP for Windows uses a readline implementation that does not support [some functions](https://github.com/php/doc-en/issues/1482) needed for handling keypresses. This kind of makes it impossible to do basic TUI stuff, since you can *only* get line inputs (ie you have to press ENTER before input gets processed). Until someone decides to implement the missing functions in [WinEditLine](https://github.com/winlibs/wineditline), we're stuck. There are other workarounds of course, but much more complicated: writing your own extension to handle keypresses, or doing this via FFI (or even possibly using Direct I/O).
 
 This is a workaround hack for that problem, and only applies if you want to do CLI stuff with PHP in a windows environment.
