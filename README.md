@@ -39,5 +39,11 @@ stdClass Object
     [code] => [A
 )
 ```
+
+## TODO
+- [ ] Get someone to write a much, much smaller binary for windows (C/C++?)
+- [ ] Add more flavours of keypress scripts (rust, go, python, perl, whatever is likely to exist on a random linux machine)
+- [ ] Look into using `CHOICE` in windows environment as well
+
 ## Credits
 This extremely simple tool is written in nodejs and is basically just ripping off a small script by [Dennis Hackethal](https://github.com/TooTallNate/keypress/issues/28). Thanks!
