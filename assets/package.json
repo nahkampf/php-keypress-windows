@@ -1,0 +1,15 @@
+{
+  "name": "keypress-dump",
+  "version": "0.0.1",
+  "description": "Keypress dump waits for keyboard input and returns JSON of the keycode.",
+  "main": "keypress.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "esbuild keypress.js --bundle --platform=node --outfile=out.js"
+  },
+  "author": "Sebastian Utbult",
+  "license": "ISC",
+  "devDependencies": {
+    "esbuild": "0.23.1"
+  }
+}
