@@ -1,9 +1,18 @@
-# Keypress detection for PHP CLI (Windows compatible)
-Long and boring story short: PHP for Windows uses a readline implementation that does not support [some functions](https://github.com/php/doc-en/issues/1482) needed for handling keypresses. This kind of makes it impossible to do basic TUI stuff, since you can *only* get line inputs (ie you have to press ENTER before input gets processed). Until someone decides to implement the missing functions in [WinEditLine](https://github.com/winlibs/wineditline), we're stuck. There are other workarounds of course, but much more complicated: writing your own extension to handle keypresses, or doing this via FFI (or even possibly using Direct I/O).
+# Keypress detection for PHP CLI under Windows using FFI
+Long and boring story short: PHP for Windows uses a readline implementation that does not support [some functions](https://github.com/php/doc-en/issues/1482) needed for handling keypresses. This kind of makes it impossible to do basic TUI stuff, since you can *only* get line inputs (ie you have to press ENTER before input gets processed). Until someone decides to implement the missing functions in [WinEditLine](https://github.com/winlibs/wineditline) (or build another GNU Readline compatible library for PHP), we're stuck. 
 
-This is a workaround hack for that problem, and only applies if you want to do CLI stuff with PHP in a windows environment.
+This lib a workaround hack for that problem, and only applies if you want to do CLI stuff with PHP in a windows environment. This lib is safe to inlcude in tools that might also be run under linux/unix, since it will automatically detect if there's a capable Readline extension and use that instead of the FFI or Exec methods.
 
-## The workaround
+# Workarounds
+There are two workarounds for this problem:
+- Using FFI to hook into Windows built in key detection or
+- Calling an executable
+  
+# FFI
+Using [FFI](https://www.php.net/manual/en/book.ffi.php) (`PHP 7 >= 7.4.0, PHP 8`) allows us to hook into Windows `User32.dll` library and use the native key detection there. 
+
+## Using an executable
+This is the clunky option. 
 We rely on an EXE file called `keypress.exe` that does one simple thing: wait for keyboard input, and output a json blob of the key data once a key was pressed. This file can then be called using `shell_exec()` in php to give a completely transparent "keypress detector". The caveat here is of course that you need to have permissions to exec files in your environment.
 
 ### Due dilligence

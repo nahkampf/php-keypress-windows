@@ -8,26 +8,26 @@ class Keypress
 {
     public const METHOD_NOMETHOD = 0;
     public const METHOD_READLINE = 1;
-    public const METHOD_SHELLREAD = 2;
     public const METHOD_WINFFI = 3;
-    public const METHOD_WINBINARY = 4;
-    public const METHOD_NODE = 5;
+
+    public const string ERROR_CLI = "This can only be used from the CLI";
+    public const string ERROR_NOMETHOD = "No valid input method found";
+
+    public string $os;
+    public $reader = null;
+    public $method = self::METHOD_NOMETHOD;
 
     public array $methods = [
-        self::METHOD_NOMETHOD => "mo input method",
-        self::METHOD_READLINE => "readline",
-        self::METHOD_SHELLREAD => "read command in bash",
-        self::METHOD_WINFFI => "FFI against user32.dll",
-        self::METHOD_WINBINARY => "compiled binary",
-        self::METHOD_NODE => "nodejs",
+        self::METHOD_READLINE => "GNU Readline",
+        self::METHOD_WINFFI => "FFI using User32.dll"
     ];
-
-    public $os;
-    public $key = null;
-    public $method = self::METHOD_NOMETHOD;
 
     public function __construct($method = null)
     {
+        // We can only do this from CLI
+        if (php_sapi_name() !== "cli") {
+            throw new \Error(self::ERROR_CLI);
+        }
         // Are we on windows or not?
         switch (PHP_OS) {
             case "WINNT":
@@ -37,28 +37,17 @@ class Keypress
                 $this->os = "OTHER";
                 break;
         }
-
         // autodetect which input method to use
-        if (!$method || $method == self::METHOD_NOMETHOD) {
-            $method = $this->detectMethod();
-            if ($method == self::METHOD_NOMETHOD) {
-                throw new Exception("No available input methods");
-            }
-        }
+        $method = $this->detectMethod();
         switch ($method) {
             case self::METHOD_READLINE:
-                $this->key = new \Nahkampf\PhpKeypressWindows\Readline();
-                break;
-            case self::METHOD_SHELLREAD:
-            case self::METHOD_NODE:
-            case self::METHOD_WINBINARY:
-                    $this->key = new \Nahkampf\PhpKeypressWindows\Exec($this->method);
+                $this->reader = new \Nahkampf\PhpKeypressWindows\Readline();
                 break;
             case self::METHOD_WINFFI:
-                $this->key = new \Nahkampf\PhpKeypressWindows\FFI();
+                $this->reader = new \Nahkampf\PhpKeypressWindows\FFI();
                 break;
             default:
-                throw new Exception("Invalid input method provided");
+                throw new \Error(self::ERROR_NOMETHOD);
                 break;
         }
     }
@@ -77,36 +66,20 @@ class Keypress
             $this->method = self::METHOD_READLINE;
             return self::METHOD_READLINE;
         }
-        // If we're not on windows, we can always do a shell_exec() and check if bash and read is available
-        if ($this->os == "OTHER") {
-            $probe = shell_exec("/bin/bash \"read -t 0.00001 -p 'READ AVAILABLE'\"");
-            if ($probe == "READ AVAILABLE") {
-                $this->method = self::METHOD_SHELLREAD;
-                return self::METHOD_SHELLREAD;
-            }
-        }
-        // If we are on windows, there are two possible workarounds.
+        // If we are on windows, use the FFI workaround (if we can)
         if ($this->os == "WIN") {
-            // First, let's see if we can do FFI
             if (extension_loaded('ffi')) {
                 $this->method = self::METHOD_WINFFI;
                 return self::METHOD_WINFFI;
             }
-            // If FFI was not available, we'll try to run the precompiled binary.
-            $probe = shell_exec(__DIR__ . DIRECTORY_SEPARATOR . "assets " . DIRECTORY_SEPARATOR . "keypress.exe");
-            if ($probe == "BINARY AVAILABLE") {
-                $this->method = self::METHOD_WINBINARY;
-                return self::METHOD_WINBINARY;
-            }
-        }
-        // Lastly, we can check if node is available and exec to it (this should work for both *nix and win)
-        $probe = shell_exec("echo \"console.log('NODE AVAILABLE');\" | node");
-        if ($probe == "NODE AVAILABLE") {
-            $this->method = self::METHOD_NODE;
-            return self::METHOD_NODE;
         }
         // no input methods were available :(
         $this->method = self::METHOD_NOMETHOD;
         return self::METHOD_NOMETHOD;
+    }
+
+    public function read()
+    {
+        $this->reader->read();
     }
 }
