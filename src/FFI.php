@@ -13,43 +13,61 @@ class FFI
     public const string ERROR_OLDCONSOLE = "Cannot initialize old console mode";
     public const string ERROR_CHANGEMODE = "Impossible to change the console mode";
     public const string ERROR_READCONSOLE = "Read console input failing";
+    public const string ERROR_FFI = "FFI initialization failed";
 
-    public static function read()
+    public ?\FFI $windows = null;
+
+    public function __construct(string $windowsHeader = "windows.h")
     {
-        $windows = \FFI::load('../assets/windows.h');
+        $this->windows = \FFI::load($windowsHeader);
+        if ($this->windows === null) {
+            throw new \Error(self::ERROR_FFI);
+        }
+    }
+
+    public function read()
+    {
         /** @psalm-suppress UndefinedMethod */
-        $handle = $windows->GetStdHandle(STD_INPUT_HANDLE);
-        $oldMode = $windows->new('DWORD');
+        /** @disregard */
+        $handle = $this->windows->GetStdHandle(STD_INPUT_HANDLE);
         /** @psalm-suppress UndefinedMethod */
-        if (!$windows->GetConsoleMode($handle, \FFI::addr($oldMode))) {
+        /** @disregard */
+        $oldMode = $this->windows->new('DWORD');
+        /** @psalm-suppress UndefinedMethod */
+        /** @disregard */
+        if (!$this->windows->GetConsoleMode($handle, \FFI::addr($oldMode))) {
             throw new \Error(self::ERROR_OLDCONSOLE);
             exit;
         }
         $newConsoleMode = ENABLE_WINDOW_INPUT | ENABLE_PROCESSED_INPUT;
         /** @psalm-suppress UndefinedMethod */
-        if (!$windows->SetConsoleMode($handle, $newConsoleMode)) {
+        /** @disregard */
+        if (!$this->windows->SetConsoleMode($handle, $newConsoleMode)) {
             throw new \Error(self::ERROR_CHANGEMODE);
             exit;
         }
-        $bufferSize = $windows->new('DWORD');
+        /** @psalm-suppress UndefinedMethod */
+        /** @disregard */
+        $bufferSize = $this->windows->new('DWORD');
         $arrayBufferSize = 128;
-        $inputBuffer = $windows->new("INPUT_RECORD[$arrayBufferSize]");
-        $cNumRead = $windows->new('DWORD');
+        /** @psalm-suppress UndefinedMethod */
+        /** @disregard */
+        $inputBuffer = $this->windows->new("INPUT_RECORD[$arrayBufferSize]");
+        /** @psalm-suppress UndefinedMethod */
+        /** @disregard */
+        $cNumRead = $this->windows->new('DWORD');
         while (true) {
             /** @psalm-suppress UndefinedMethod */
-            $windows->GetNumberOfConsoleInputEvents(
+            /** @disregard */
+            $this->windows->GetNumberOfConsoleInputEvents(
                 $handle,
                 \FFI::addr($bufferSize)
             );
             if ($bufferSize->cdata > 1) {
                 if (
                     /** @psalm-suppress UndefinedMethod */
-                    !$windows->ReadConsoleInputW(
-                        $handle,
-                        $inputBuffer,
-                        $arrayBufferSize,
-                        \FFI::addr($cNumRead)
-                    )
+                    /** @disregard */
+                    !$this->windows->ReadConsoleInputA($handle, $inputBuffer, $arrayBufferSize, \FFI::addr($cNumRead))
                 ) {
                     throw new \Error(self::ERROR_READCONSOLE);
                     exit;
@@ -63,6 +81,6 @@ class FFI
                 }
             }
         }
-        $windows->CloseHandle($handle);
+        $this->windows->CloseHandle($handle);
     }
 }

@@ -1,6 +1,1 @@
 /vendor/
-/assets/signtool.exe
-assets/node_modules
-assets/out.js
-assets/package-lock.json
-assets/sea-prep.blob

@@ -19,10 +19,10 @@ class Keypress
 
     public array $methods = [
         self::METHOD_READLINE => "GNU Readline",
-        self::METHOD_WINFFI => "FFI using User32.dll"
+        self::METHOD_WINFFI => "FFI using kernel32.dll"
     ];
 
-    public function __construct($method = null)
+    public function __construct(string $windowsHeader = "windows.h")
     {
         // We can only do this from CLI
         if (php_sapi_name() !== "cli") {
@@ -38,13 +38,13 @@ class Keypress
                 break;
         }
         // autodetect which input method to use
-        $method = $this->detectMethod();
-        switch ($method) {
+        $this->detectMethod();
+        switch ($this->method) {
             case self::METHOD_READLINE:
-                $this->reader = new \Nahkampf\PhpKeypressWindows\Readline();
+                $this->reader = null;
                 break;
             case self::METHOD_WINFFI:
-                $this->reader = new \Nahkampf\PhpKeypressWindows\FFI();
+                $this->reader = new \Nahkampf\PhpKeypressWindows\FFI($windowsHeader);
                 break;
             default:
                 throw new \Error(self::ERROR_NOMETHOD);
@@ -64,18 +64,17 @@ class Keypress
         ) {
             // we have a compatible readline implementation, so hacks are unneccessary
             $this->method = self::METHOD_READLINE;
-            return self::METHOD_READLINE;
+            return;
         }
         // If we are on windows, use the FFI workaround (if we can)
         if ($this->os == "WIN") {
             if (extension_loaded('ffi')) {
                 $this->method = self::METHOD_WINFFI;
-                return self::METHOD_WINFFI;
+                return;
             }
         }
         // no input methods were available :(
         $this->method = self::METHOD_NOMETHOD;
-        return self::METHOD_NOMETHOD;
     }
 
     public function read()

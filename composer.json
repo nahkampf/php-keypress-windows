@@ -1,6 +1,6 @@
 {
     "name": "nahkampf/php-keypress-windows",
-    "description": "Workarounds to get keypress input in PHP CLI in a windows environment",
+    "description": "Workaround to get keypress input in PHP CLI in a windows environment",
     "type": "library",
     "license": "MIT",
     "autoload": {
@@ -10,7 +10,8 @@
     },
     "authors": [
         {
-            "name": "Sebastian Utbult"
+            "name": "Sebastian Utbult",
+            "email": "kreuzweg@gmail.com"
         }
     ],
     "require": {}
