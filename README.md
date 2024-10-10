@@ -24,7 +24,7 @@ See included `example.php` in this lib.
 ## The `windows.h` file
 The header file that FFI loads contains a definition for the path to `kernel32.dll`. If, for some reason, kernel32.dll is located somewhere other than `C:\Windows\System32` you'll have to roll your own file and pass the full path of the file to `Keypress()`, e.g `$keypress = new Keypress('..\..\myWindows.h')`. Here's the contents of the windows header file:
 ```C
-define FFI_LIB "C:\\Windows\\System32\\kernel32.dll"
+#define FFI_LIB "C:\\Windows\\System32\\kernel32.dll"
 typedef unsigned short wchar_t;
 typedef int BOOL;
 typedef unsigned long DWORD;
