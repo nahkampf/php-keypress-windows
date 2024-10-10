@@ -157,4 +157,3 @@ object(FFI\CData:struct _KEY_EVENT_RECORD)#11 (6) {
 - You most likely want to look at `wVirtualKeyCode` (which is device-independent) rather than `wVirtualScanCode` (which can be device specific).
 - Keep in mind that quite a lot of "keys" on the keyboard have no `uChar` equivalent (function keys, meta keys, delete etc). For those the `UnicodeChar` will always be `0` and `AsciiChar` will always be null/empty.
 - `dwControlKeyState` is set to the Virtual Key Code for that meta key if pressed, which can be used for combinations like CTRL-A etc. Note however that pressing `<meta> + <key>` will generate two, three _or_ four key events depending on how quick your fingers are. One keydown event for each of the two keys, and one (_or_ two) for the keyup. This makes standard keysequences using CTRL/ALT modifiers a bit tricky to implement. I don't have the time or frankly the sanity points to solve this, but if anyone does PRs are more than welcome!
-  
